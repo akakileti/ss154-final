@@ -1,0 +1,23 @@
+---
+title: "A Joint Inquiry: Marijuana Legalization’s Influence on Alcohol Misuse"
+output: html_document
+date: "2025-04-15"
+---
+
+```{r include=FALSE, message=FALSE, warning=FALSE}
+# List of packages
+packages <- c("tidyverse", "lubridate", "ggplot2", "Synth", "did", "readr", "dplyr")
+
+# Install if missing
+installed <- packages %in% rownames(installed.packages())
+if (any(!installed)) install.packages(packages[!installed])
+
+# Load packages
+lapply(packages, library, character.only = TRUE)
+```
+
+```{r echo=TRUE, message=FALSE}
+data <- read_csv("data.csv")
+head(data)
+summary(data)
+```
