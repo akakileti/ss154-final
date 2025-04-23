@@ -69,7 +69,13 @@ att_did <- att_gt(
 )
 
 summary(att_did)
-ggdid(att_did) + theme_serif()
+ggdid(att_did) + theme_serif() +
+  labs(
+    title = "Event Study Estimates by Legalization Year",
+    subtitle = "ATT by calendar year for 2012, 2014, and 2016 legalization groups",
+    x = "Year",
+    y = "Average Treatment Effect on Binge Drinking (%)"
+  )
 ```
 
 
