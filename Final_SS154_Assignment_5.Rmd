@@ -1,0 +1,211 @@
+---
+title: "The Impact of Recreational Marijuana Legalization on Binge Drinking in the U.S.: Evidence from a Difference-in-Differences Approach"
+output: html_document
+date: "2025-03-30"
+---
+
+## Setup
+
+```{r setup, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+packages <- c("did", "ggplot2", "dplyr", "readr", "stargazer")
+
+#install packages if not installed
+installed <- packages %in% rownames(installed.packages())
+if (any(!installed)) {
+  install.packages(packages[!installed])
+}
+
+#load packages
+lapply(packages, library, character.only = TRUE)
+
+```
+
+## Importing Data
+
+```{r import, echo=TRUE, message=FALSE, warning=FALSE}
+url <- 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-Qiz6Osc9I39bvo_94Mo1GvYe_ghAVboqYvR5xu6ZSPDI-ESb6ECCXgocUP3ALVQ3oxi_n3wDihQL/pub?gid=1277276287&single=true&output=csv'
+data <- read.csv(url)
+head(data)
+summary(data)
+```
+
+## Latex Summary Statistics Table
+```{r summary}
+#subset to key variables only
+summary_vars <- data[c("Binge_Drinking_Prevalence", "Legalized", "Bachelors_Rate", "Median_Age", "Urbanization_Rate")]
+
+#create summary table in LaTeX format (default)
+stargazer(summary_vars, type = "latex", title = "Summary Statistics", digits = 2, summary.stat = c("min", "mean", "sd", "max"))
+```
+
+## Analysis
+
+
+### Event Study Estimates of Binge Drinking Prevalence by Legalization Cohort
+```{r by_year_analysis, echo=TRUE, message=FALSE, warning=FALSE}
+
+att_did <- att_gt(
+  yname = "Binge_Drinking_Prevalence",
+  tname = "Year",
+  idname = "State_ID",
+  gname = "G",
+  xformla = ~ Bachelors_Rate + Median_Age + Urbanization_Rate,
+  data = data,
+  est_method = "dr"
+)
+
+summary(att_did)
+ggdid(att_did)
+```
+
+
+### Trends in Binge Drinking Prevalence by Legalization Timing
+```{r by_year_line_plot, echo=TRUE, message=FALSE, warning=FALSE}
+
+#treated states by year (2012, 2014, 2016)
+treated_data <- data %>%
+  filter(!is.na(Legalization_Year)) %>%
+  mutate(Cohort = as.factor(Legalization_Year))
+
+#control group
+control_data <- data %>%
+  filter(is.na(Legalization_Year)) %>%
+  mutate(Cohort = "Control")
+
+#combine groups
+combined_data <- bind_rows(treated_data, control_data)
+
+#average binge drinking by group and year
+avg_trends <- combined_data %>%
+  group_by(Year, Cohort) %>%
+  summarise(Avg_Binge = mean(Binge_Drinking_Prevalence, na.rm = TRUE), .groups = "drop")
+
+#get legalization years per cohort (excluding control)
+cohort_lines <- treated_data %>%
+  distinct(Cohort, Legalization_Year)
+
+#plot
+ggplot(avg_trends, aes(x = Year, y = Avg_Binge, color = Cohort)) +
+  geom_line(size = 1.1) +
+  geom_point(size = 2) +
+  #add vertical line for each treated cohort
+  geom_vline(data = cohort_lines, aes(xintercept = Legalization_Year, color = Cohort),
+             linetype = "dashed", show.legend = FALSE) +
+  labs(
+    title = "Binge Drinking Trends by Legalization Cohort and Control Group",
+    subtitle = "Dashed lines mark legalization years for each cohort",
+    x = "Year",
+    y = "Avg. Binge Drinking Prevalence (%)",
+    color = "Group"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+
+```
+
+### Group-Time ATT Estimates of Legalization Effects
+```{r grouped, echo=TRUE, message=FALSE, warning=FALSE}
+library(broom)
+#convert att_gt object into a tidy dataframe
+gt_df <- tidy(att_did)
+
+ggplot(gt_df, aes(x = time, y = estimate, color = as.factor(term), group = term)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(linewidth = 2) +
+  geom_errorbar(aes(ymin = estimate - 1.96 * std.error, ymax = estimate + 1.96 * std.error),
+                width = 0.3, alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray40") +
+  scale_color_brewer(palette = "Dark2", name = "Treatment Year") +
+  labs(
+    title = "Event Study: Group-Time ATT Estimates",
+    subtitle = "Callaway & Sant'Anna (2021)",
+    x = "Calendar Year",
+    y = "Treatment Effect (ATT)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+### Effect of Length of Exposure to Legalization
+``` {r exposure_length, echo=TRUE, message=FALSE, warning=FALSE}
+#aggregate plotting code
+agg_event <- aggte(att_did, type = "dynamic")
+ggdid(agg_event)
+```
+
+
+### Overall Estimated ATT
+```{r overall, echo=TRUE, message=FALSE, warning=FALSE}
+#overall ATT
+
+agg_overall <- aggte(att_did, type = "simple")
+summary(agg_overall)
+
+overall_df <- data.frame(
+  Label = "Overall ATT",
+  Estimate = agg_overall$overall.att,
+  Lower = agg_overall$overall.att - 1.96 * agg_overall$overall.se,
+  Upper = agg_overall$overall.att + 1.96 * agg_overall$overall.se
+)
+
+ggplot(overall_df, aes(x = Label, y = Estimate)) +
+  geom_col(fill = "steelblue", width = 0.5) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.1) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray40") +
+  labs(
+    title = "Overall ATT: Effect of Marijuana Legalization",
+    subtitle = "Estimated impact on binge drinking prevalence",
+    y = "Estimated ATT",
+    x = ""
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+### Treated vs. Control Trends in Binge Drinking Prevalence
+```{r overall_trend, echo=TRUE, message=FALSE, warning=FALSE}
+
+#create average trends by treatment status
+avg_trends <- data %>%
+  group_by(Year, Legalized) %>%
+  summarize(
+    avg_binge = mean(Binge_Drinking_Prevalence, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    Legalized = ifelse(Legalized == 1, "Treated (Legalized)", "Control (Not Legalized)")
+  )
+
+#plot
+ggplot(avg_trends, aes(x = Year, y = avg_binge, color = Legalized)) +
+  geom_line(size = 1.1) +
+  geom_point(size = 2) +
+  scale_color_manual(
+    values = c("Treated (Legalized)" = "darkgreen", "Control (Not Legalized)" = "gray60")
+  ) +
+  labs(
+    title = "Average Binge Drinking Prevalence Over Time",
+    subtitle = "Comparing Treated vs. Control States",
+    x = "Year",
+    y = "Average Binge Drinking Prevalence (%)",
+    color = "Group"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+### State-Level Trends in Binge Drinking Prevalence by Legalization Status
+```{r individual_trends, echo=TRUE, message=FALSE, warning=FALSE}
+ggplot(data, aes(x = Year, y = Binge_Drinking_Prevalence, group = State, color = as.factor(Legalized))) +
+  geom_line(alpha = 0.5, size = 0.4) +
+  scale_color_manual(
+    values = c("0" = "darkgray", "1" = "darkgreen"),
+    labels = c("0" = "Not Legalized", "1" = "Legalized"),
+    name = "Legal Status"
+  ) +
+  labs(
+    title = "Binge Drinking Prevalence Over Time by State",
+    subtitle = "Lines represent individual states; color indicates legalization status",
+    x = "Year",
+    y = "Binge Drinking Prevalence (%)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
