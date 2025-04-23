@@ -179,6 +179,11 @@ ggplot(overall_df, aes(x = Label, y = Estimate)) +
   theme_minimal(base_size = 14) + theme_serif()
 ```
 
+## Latex Output Table
+```{r}
+stargazer(overall_df, type = "latex", summary = FALSE, title = "Overall ATT Estimate", rownames = FALSE)
+```
+
 ### Treated vs. Control Trends in Binge Drinking Prevalence
 ```{r overall_trend, echo=TRUE, message=FALSE, warning=FALSE}
 
