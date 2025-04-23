@@ -20,9 +20,16 @@ if (any(!installed)) {
 #load packages
 lapply(packages, library, character.only = TRUE)
 
-font_add("Times", "Times New Roman")  # You can also try just "Times"
-showtext_auto()
-theme_set(theme_minimal(base_family = "Times"))
+theme_serif <- function() {
+  theme_minimal(base_family = "serif") +
+    theme(
+      text = element_text(family = "serif"),
+      legend.text = element_text(family = "serif"),
+      axis.title = element_text(family = "serif"),
+      plot.title = element_text(family = "serif", face = "bold"),
+      plot.subtitle = element_text(family = "serif")
+    )
+}
 
 ```
 
@@ -61,7 +68,7 @@ att_did <- att_gt(
 )
 
 summary(att_did)
-ggdid(att_did)
+ggdid(att_did) + theme_serif()
 ```
 
 
@@ -105,7 +112,7 @@ ggplot(avg_trends, aes(x = Year, y = Avg_Binge, color = Cohort)) +
     color = "Group"
   ) +
   theme_minimal(base_size = 13) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") + theme_serif()
 
 ```
 
@@ -128,14 +135,14 @@ ggplot(gt_df, aes(x = time, y = estimate, color = as.factor(term), group = term)
     x = "Calendar Year",
     y = "Treatment Effect (ATT)"
   ) +
-  theme_minimal(base_size = 14)
+  theme_minimal(base_size = 14) + theme_serif()
 ```
 
 ### Effect of Length of Exposure to Legalization
 ``` {r exposure_length, echo=TRUE, message=FALSE, warning=FALSE}
 #aggregate plotting code
 agg_event <- aggte(att_did, type = "dynamic")
-ggdid(agg_event)
+ggdid(agg_event) + theme_serif()
 ```
 
 ### Overall Estimated ATT
@@ -162,7 +169,7 @@ ggplot(overall_df, aes(x = Label, y = Estimate)) +
     y = "Estimated ATT",
     x = ""
   ) +
-  theme_minimal(base_size = 14)
+  theme_minimal(base_size = 14) + theme_serif()
 ```
 
 ### Treated vs. Control Trends in Binge Drinking Prevalence
@@ -194,7 +201,7 @@ ggplot(avg_trends, aes(x = Year, y = avg_binge, color = Legalized)) +
     color = "Group"
   ) +
   theme_minimal(base_size = 13) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") + theme_serif()
 ```
 
 ### State-Level Trends in Binge Drinking Prevalence by Legalization Status
@@ -213,5 +220,5 @@ ggplot(data, aes(x = Year, y = Binge_Drinking_Prevalence, group = State, color =
     y = "Binge Drinking Prevalence (%)"
   ) +
   theme_minimal(base_size = 12) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") + theme_serif()
 ```
