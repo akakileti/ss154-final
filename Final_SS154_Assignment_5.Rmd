@@ -1,13 +1,15 @@
 ---
 title: "The Impact of Recreational Marijuana Legalization on Binge Drinking in the U.S.: Evidence from a Difference-in-Differences Approach"
-output: html_document
+output: 
+  html_document:
+    css: serif.css
 date: "2025-03-30"
 ---
 
 ## Setup
 
 ```{r setup, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
-packages <- c("did", "ggplot2", "dplyr", "readr", "stargazer")
+packages <- c("did", "ggplot2", "dplyr", "readr", "stargazer", "showtext")
 
 #install packages if not installed
 installed <- packages %in% rownames(installed.packages())
@@ -17,6 +19,10 @@ if (any(!installed)) {
 
 #load packages
 lapply(packages, library, character.only = TRUE)
+
+font_add("Times", "Times New Roman")  # You can also try just "Times"
+showtext_auto()
+theme_set(theme_minimal(base_family = "Times"))
 
 ```
 
@@ -124,13 +130,13 @@ ggplot(gt_df, aes(x = time, y = estimate, color = as.factor(term), group = term)
   ) +
   theme_minimal(base_size = 14)
 ```
+
 ### Effect of Length of Exposure to Legalization
 ``` {r exposure_length, echo=TRUE, message=FALSE, warning=FALSE}
 #aggregate plotting code
 agg_event <- aggte(att_did, type = "dynamic")
 ggdid(agg_event)
 ```
-
 
 ### Overall Estimated ATT
 ```{r overall, echo=TRUE, message=FALSE, warning=FALSE}
