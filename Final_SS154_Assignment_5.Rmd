@@ -20,16 +20,17 @@ if (any(!installed)) {
 #load packages
 lapply(packages, library, character.only = TRUE)
 
-theme_serif <- function() {
-  theme_minimal(base_family = "serif") +
+theme_serif <- function(base_size = 14) {
+  theme_minimal(base_family = "serif", base_size = base_size) +
     theme(
-      text = element_text(family = "serif"),
-      legend.text = element_text(family = "serif"),
-      axis.title = element_text(family = "serif"),
-      plot.title = element_text(family = "serif", face = "bold"),
-      plot.subtitle = element_text(family = "serif")
+      text = element_text(family = "serif", size = base_size),
+      legend.text = element_text(size = base_size * 0.9),
+      axis.title = element_text(size = base_size),
+      plot.title = element_text(size = base_size * 1.3, face = "bold"),
+      plot.subtitle = element_text(size = base_size)
     )
 }
+
 
 ```
 
