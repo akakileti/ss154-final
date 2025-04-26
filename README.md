@@ -4,6 +4,8 @@
 
 This project analyzes the impact of recreational marijuana legalization on adult binge drinking behavior across U.S. states using a Difference-in-Differences (DiD) approach. It was developed as a final assignment for the SS154 (Econometrics and Economic Systems) course at Minerva University during the Spring 2025 semester.
 
+[View Final Paper (PDF)](./Final_Paper.pdf)
+
 ## Data Access
 
 The cleaned dataset is publicly available and can be accessed [here](https://drive.google.com/file/d/1Ny8vG2mAt4j7UP_K6-bXP-SjBnMwBxgZ/view?usp=sharing) via Google Sheets or [downloaded here](https://docs.google.com/spreadsheets/d/e/2PACX-1vS-Qiz6Osc9I39bvo_94Mo1GvYe_ghAVboqYvR5xu6ZSPDI-ESb6ECCXgocUP3ALVQ3oxi_n3wDihQL/pub?gid=1277276287&single=true&output=csv) as a CSV.
