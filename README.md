@@ -24,7 +24,7 @@ It includes annual panel data for all 50 U.S. states from 2011 to 2023, merged f
 
 ## How to Navigate the Repository
 
-1. Open `Final_SS154_Assignment_5.Rmd` to view or run the analysis.
+1. Open `code.Rmd` to view or run the analysis.
 2. To view without executing code, use the HTML or PDF files.
 3. To change fonts, modify `serif.css` or `theme_serif()` in the Rmd.
 4. All plots and outputs use serif font for consistency in publication-quality formatting.
@@ -36,8 +36,8 @@ It includes annual panel data for all 50 U.S. states from 2011 to 2023, merged f
 
 ## Project Contents
 
-- **`Final_SS154_Assignment_5.Rmd`**: Main analysis script written in R Markdown.
-- **`Final_SS154_Assignment_5.html` / `Final_SS154_Assignment_5.pdf`**: Rendered outputs for HTML and PDF formats.
+- **`code.Rmd`**: Main analysis script written in R Markdown.
+- **`code.html` / `code.pdf`**: Rendered outputs for HTML and PDF formats.
 - **`data.csv`**: Cleaned panel dataset of all 50 U.S. states from 2011 to 2023.
 - **`serif.css`**: Custom stylesheet to apply serif fonts throughout the HTML output.
 - **`.gitignore`**: File to prevent system and build files from being committed.
